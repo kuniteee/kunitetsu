@@ -1,1 +1,123 @@
-國﨑哲世のテスト
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>単語タイピングゲーム | Typing Game</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff41; /* マトリックス・グリーン */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            border: 2px solid #00ff41;
+            background: rgba(0, 255, 65, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+        }
+
+        .word {
+            position: absolute;
+            font-size: 1.5rem;
+            white-space: nowrap;
+            text-shadow: 0 0 8px #00ff41;
+        }
+
+        #input-field {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-size: 1.5rem;
+            padding: 10px;
+            width: 300px;
+            outline: none;
+            text-align: center;
+        }
+
+        #score-board {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TERMINAL DEFENSE</h1>
+    
+    <div id="game-container">
+        <div id="score-board">SCORE: <span id="score">0</span></div>
+    </div>
+
+    <input type="text" id="input-field" placeholder="Type here..." autofocus>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const inputField = document.getElementById('input-field');
+        const scoreElement = document.getElementById('score');
+        
+        // 出現させる単語リスト（ここをくにさきさん好みに書き換えられます！）
+        const words = ['apple', 'banana', 'coffee', 'dog', 'earth', 'fish', 'guitar', 'happy', 
+            'ice', 'juice', 'key', 'lemon', 'music', 'night', 'ocean', 'piano', 
+            'queen', 'river', 'sky', 'tree', 'umbrella', 'video', 'water', 'yellow',
+            'sushi', 'ramen', 'ninja', 'sakura', 'kimono', 'manga', 'anime'];
+        let score = 0;
+
+        function createWord() {
+            const wordText = words[Math.floor(Math.random() * words.length)];
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word';
+            wordDiv.innerText = wordText;
+            
+            // 出現位置をランダムに
+            wordDiv.style.left = '0px';
+            wordDiv.style.top = Math.random() * (container.offsetHeight - 30) + 'px';
+            
+            container.appendChild(wordDiv);
+
+            let pos = 0;
+            const interval = setInterval(() => {
+                pos += 2; // 速度
+                wordDiv.style.left = pos + 'px';
+
+                // 右端に到達したらゲームオーバー（簡易版）
+                if (pos > container.offsetWidth) {
+                    clearInterval(interval);
+                    wordDiv.remove();
+                }
+            }, 30);
+
+            wordDiv.dataset.interval = interval;
+        }
+
+        inputField.addEventListener('input', () => {
+            const currentWords = document.querySelectorAll('.word');
+            currentWords.forEach(wordDiv => {
+                if (wordDiv.innerText === inputField.value) {
+                    // 正解！
+                    clearInterval(wordDiv.dataset.interval);
+                    wordDiv.remove();
+                    inputField.value = '';
+                    score += 10;
+                    scoreElement.innerText = score;
+                }
+            });
+        });
+
+        // 2秒ごとに新しい単語を生成
+        setInterval(createWord, 2000);
+    </script>
+</body>
+</html>
