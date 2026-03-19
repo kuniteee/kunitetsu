@@ -79,7 +79,18 @@
         const scoreElement = document.getElementById('score');
         const livesElement = document.getElementById('lives-display'); // ここでHTMLの場所を認識
         
-        const words = ['apple', 'banana', 'coffee', 'dog', 'earth', 'fish', 'guitar', 'happy', 'sushi', 'ramen', 'ninja', 'sakura'];
+        const words = ['apple', 'banana', 'coffee', 'dog', 'earth', 'fish', 'guitar', 'happy', 
+            'sushi', 'ramen', 'ninja', 'sakura', 'kimono', 'manga', 'anime',
+            'ocean', 'mountain', 'river', 'forest', 'desert', 'island', 'garden',
+            'winter', 'summer', 'spring', 'autumn', 'cloud', 'sunny', 'rainy',
+            'pencil', 'notebook', 'school', 'music', 'movie', 'game', 'sports',
+            'soccer', 'tennis', 'bread', 'cheese', 'pizza', 'pasta', 'cookie',
+            'orange', 'lemon', 'melon', 'berry', 'peach', 'grape', 'tomato',
+            'rabbit', 'panda', 'koala', 'tiger', 'lion', 'zebra', 'horse',
+            'camera', 'phone', 'watch', 'glass', 'chair', 'table', 'window',
+            'train', 'plane', 'bike', 'ship', 'truck', 'bus', 'rocket',
+            'blue', 'red', 'green', 'white', 'black', 'pink', 'gold', 'silver',
+            'hello', 'smile', 'dream', 'lucky', 'magic', 'peace', 'heart', 'star'];
         let score = 0;
         let lives = 3;
         let isGameOver = false;
@@ -100,7 +111,7 @@
             const interval = setInterval(() => {
                 if (isGameOver) { clearInterval(interval); return; }
 
-                pos += 2; 
+                pos += 3; 
                 wordDiv.style.left = pos + 'px';
 
                 // 右端まで流れたらミス
@@ -141,7 +152,7 @@
             location.reload(); 
         }
 
-        setInterval(createWord, 2000);
+        setInterval(createWord, 1500);
     </script>
 </body>
 </html>
