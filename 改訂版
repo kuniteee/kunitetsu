@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUNISAKI | Typing Game</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        /* スコアボードのデザイン */
+        #score-board {
+            width: 100%;
+            max-width: 800px;
+            color: #00ff41;
+            font-family: monospace;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        /* ゲーム画面のデザイン */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            border: 2px solid #00ff41;
+            background: rgba(0, 255, 65, 0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .word {
+            position: absolute;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        #input-field {
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-size: 1.5rem;
+            padding: 10px;
+            width: 300px;
+            text-align: center;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>KUNISAKI GAME</h1>
+
+    <div id="score-board">
+        SCORE: <span id="score">0</span><br>
+        <span id="lives-display">LIVES: ❤️❤️❤️</span>
+    </div>
+    
+    <div id="game-container"></div>
+
+    <input type="text" id="input-field" placeholder="Type here..." autofocus>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const inputField = document.getElementById('input-field');
+        const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives-display'); // ここでHTMLの場所を認識
+        
+        const words = ['apple', 'banana', 'coffee', 'dog', 'earth', 'fish', 'guitar', 'happy', 'sushi', 'ramen', 'ninja', 'sakura'];
+        let score = 0;
+        let lives = 3;
+        let isGameOver = false;
+
+        function createWord() {
+            if (isGameOver) return;
+
+            const wordText = words[Math.floor(Math.random() * words.length)];
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word';
+            wordDiv.innerText = wordText;
+            
+            wordDiv.style.left = '0px';
+            wordDiv.style.top = Math.random() * (container.offsetHeight - 40) + 'px';
+            container.appendChild(wordDiv);
+
+            let pos = 0;
+            const interval = setInterval(() => {
+                if (isGameOver) { clearInterval(interval); return; }
+
+                pos += 2; 
+                wordDiv.style.left = pos + 'px';
+
+                // 右端まで流れたらミス
+                if (pos > container.offsetWidth) {
+                    clearInterval(interval);
+                    wordDiv.remove();
+                    lives--; 
+                    updateDisplay(); // ライフの表示を更新
+                    if (lives <= 0) gameOver();
+                }
+            }, 30);
+
+            wordDiv.dataset.interval = interval;
+        }
+
+        inputField.addEventListener('input', () => {
+            const currentWords = document.querySelectorAll('.word');
+            currentWords.forEach(wordDiv => {
+                if (wordDiv.innerText === inputField.value) {
+                    clearInterval(wordDiv.dataset.interval);
+                    wordDiv.remove();
+                    inputField.value = '';
+                    score += 10;
+                    updateDisplay();
+                }
+            });
+        });
+
+        // 画面の数字やハートを書き換える関数
+        function updateDisplay() {
+            scoreElement.innerText = score;
+            livesElement.innerText = 'LIVES: ' + '❤️'.repeat(lives);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            alert('GAME OVER! SCORE: ' + score);
+            location.reload(); 
+        }
+
+        setInterval(createWord, 2000);
+    </script>
+</body>
+</html>
