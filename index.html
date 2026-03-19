@@ -1,65 +1,75 @@
-<!DOCTYPE html>
+DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>単語タイピングゲーム | Typing Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUNISAKI | Typing Game</title>
     <style>
         body {
+            margin: 0;<!
             background-color: #0a0a0a;
-            color: #00ff41; /* マトリックス・グリーン */
-            font-family: 'Courier New', Courier, monospace;
+            color: #ffffff;
+            font-family: sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            padding: 50px 20px;
         }
 
+        /* スコアボードのデザイン */
+        #score-board {
+            width: 100%;
+            max-width: 800px;
+            color: #00ff41;
+            font-family: monospace;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        /* ゲーム画面のデザイン */
         #game-container {
             position: relative;
-            width: 800px;
-            height: 500px;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
             border: 2px solid #00ff41;
             background: rgba(0, 255, 65, 0.05);
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .word {
             position: absolute;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
             font-size: 1.5rem;
+            font-weight: bold;
             white-space: nowrap;
-            text-shadow: 0 0 8px #00ff41;
         }
 
         #input-field {
-            margin-top: 20px;
             background: transparent;
             border: 1px solid #00ff41;
             color: #00ff41;
             font-size: 1.5rem;
             padding: 10px;
             width: 300px;
-            outline: none;
             text-align: center;
-        }
-
-        #score-board {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 1.2rem;
+            outline: none;
         }
     </style>
 </head>
 <body>
 
-    <h1>TERMINAL DEFENSE</h1>
-    
-    <div id="game-container">
-        <div id="score-board">SCORE: <span id="score">0</span></div>
+    <h1>KUNISAKI GAME</h1>
+
+    <div id="score-board">
+        SCORE: <span id="score">0</span><br>
+        <span id="lives-display">LIVES: ❤️❤️❤️</span>
     </div>
+    
+    <div id="game-container"></div>
 
     <input type="text" id="input-field" placeholder="Type here..." autofocus>
 
@@ -67,35 +77,50 @@
         const container = document.getElementById('game-container');
         const inputField = document.getElementById('input-field');
         const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives-display'); // ここでHTMLの場所を認識
         
-        // 出現させる単語リスト（ここをくにさきさん好みに書き換えられます！）
         const words = ['apple', 'banana', 'coffee', 'dog', 'earth', 'fish', 'guitar', 'happy', 
-            'ice', 'juice', 'key', 'lemon', 'music', 'night', 'ocean', 'piano', 
-            'queen', 'river', 'sky', 'tree', 'umbrella', 'video', 'water', 'yellow',
-            'sushi', 'ramen', 'ninja', 'sakura', 'kimono', 'manga', 'anime'];
+            'sushi', 'ramen', 'ninja', 'sakura', 'kimono', 'manga', 'anime',
+            'ocean', 'mountain', 'river', 'forest', 'desert', 'island', 'garden',
+            'winter', 'summer', 'spring', 'autumn', 'cloud', 'sunny', 'rainy',
+            'pencil', 'notebook', 'school', 'music', 'movie', 'game', 'sports',
+            'soccer', 'tennis', 'bread', 'cheese', 'pizza', 'pasta', 'cookie',
+            'orange', 'lemon', 'melon', 'berry', 'peach', 'grape', 'tomato',
+            'rabbit', 'panda', 'koala', 'tiger', 'lion', 'zebra', 'horse',
+            'camera', 'phone', 'watch', 'glass', 'chair', 'table', 'window',
+            'train', 'plane', 'bike', 'ship', 'truck', 'bus', 'rocket',
+            'blue', 'red', 'green', 'white', 'black', 'pink', 'gold', 'silver',
+            'hello', 'smile', 'dream', 'lucky', 'magic', 'peace', 'heart', 'star'];
         let score = 0;
+        let lives = 3;
+        let isGameOver = false;
 
         function createWord() {
+            if (isGameOver) return;
+
             const wordText = words[Math.floor(Math.random() * words.length)];
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word';
             wordDiv.innerText = wordText;
             
-            // 出現位置をランダムに
             wordDiv.style.left = '0px';
-            wordDiv.style.top = Math.random() * (container.offsetHeight - 30) + 'px';
-            
+            wordDiv.style.top = Math.random() * (container.offsetHeight - 40) + 'px';
             container.appendChild(wordDiv);
 
             let pos = 0;
             const interval = setInterval(() => {
-                pos += 2; // 速度
+                if (isGameOver) { clearInterval(interval); return; }
+
+                pos += 3; 
                 wordDiv.style.left = pos + 'px';
 
-                // 右端に到達したらゲームオーバー（簡易版）
+                // 右端まで流れたらミス
                 if (pos > container.offsetWidth) {
                     clearInterval(interval);
                     wordDiv.remove();
+                    lives--; 
+                    updateDisplay(); // ライフの表示を更新
+                    if (lives <= 0) gameOver();
                 }
             }, 30);
 
@@ -106,22 +131,28 @@
             const currentWords = document.querySelectorAll('.word');
             currentWords.forEach(wordDiv => {
                 if (wordDiv.innerText === inputField.value) {
-                    // 正解！
                     clearInterval(wordDiv.dataset.interval);
                     wordDiv.remove();
                     inputField.value = '';
                     score += 10;
-                    scoreElement.innerText = score;
+                    updateDisplay();
                 }
             });
         });
 
-        // 2秒ごとに新しい単語を生成
-        setInterval(createWord, 2000);
+        // 画面の数字やハートを書き換える関数
+        function updateDisplay() {
+            scoreElement.innerText = score;
+            livesElement.innerText = 'LIVES: ' + '❤️'.repeat(lives);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            alert('GAME OVER! SCORE: ' + score);
+            location.reload(); 
+        }
+
+        setInterval(createWord, 1500);
     </script>
 </body>
 </html>
-<div id="score-board">
-    SCORE: <span id="score">0</span><br>
-    <span id="lives-display">LIVES: ❤️❤️❤️</span>
-</div>
